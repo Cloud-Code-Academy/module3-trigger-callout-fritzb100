@@ -4,4 +4,7 @@
 trigger NewsCategoryTrigger on News_Category__c (after insert, after update) {
     // TODO: Implement trigger logic
     // - Call appropriate handler methods for insert and update contexts
+    // if(Trigger.isAfter && Trigger.isInsert){
+    //     NewsAPIService.getTopHeadlinesByCategory('health', 2, 2);
+    //}
 } 

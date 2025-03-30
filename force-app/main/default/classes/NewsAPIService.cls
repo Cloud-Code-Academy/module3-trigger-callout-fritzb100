@@ -16,14 +16,27 @@ public with sharing class NewsAPIService {
      * @param page Page number for pagination
      * @return NewsAPIResponse The wrapper object containing the API response
      */
+    //@future(callout=true)
     public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) {
-        // TODO: Implement method to fetch headlines by category
-        // - Validate and set defaults for parameters
-        // - Build the request URL
+        String message;
+        // - Validate and set defaults for parameters Build the request URL
+        String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category;
+
         // - Make the callout
+        HttpResponse res = makeCallout(endpoint);
         // - Parse and return the response
-        
-        return null;
+        NewsAPIResponse newsResponse = parseResponse(res.getBody());
+        // Convert articles to salesforce records
+        List<Article__c> articlesRecords = newsResponse.toSObjects();
+        System.debug('Converted Article_c records: ' + articlesRecords);
+        try {
+            insert articlesRecords;
+            System.debug('Successfully inserted Article__c records.');
+        } catch (NewsAPIException e) {
+            message = e.getMessage();
+            System.debug('Successfully inserted Article__c records.');
+        }
+        return newsResponse;
     }
     
     /**
@@ -31,13 +44,24 @@ public with sharing class NewsAPIService {
      * @param endpoint The full URL with parameters
      * @return HttpResponse The HTTP response
      */
-    private static HttpResponse makeCallout(String endpoint) {
-        // TODO: Implement HTTP callout
+    public static HttpResponse makeCallout(String endpoint) {
+        HttpResponse returnedResponse = new HttpResponse();
+        String message;
         // - Create and configure HTTP request
-        // - Make the callout
-        // - Handle exceptions
-        
-        return null;
+        Http http = new Http();
+        HttpRequest request = new HttpRequest();
+        request.setMethod('GET');
+        request.setEndpoint(endpoint);
+            // - Make the callout - Handle exceptions
+        try {
+            HttpResponse response = http.send(request);
+            if(response.getStatusCode() >= 200 || response.getStatusCode() <300) {
+                returnedResponse = response;
+            }
+        } catch (NewsAPIException e) {
+            message = e.getMessage();
+        }
+        return returnedResponse;
     }
     
     /**
@@ -46,11 +70,16 @@ public with sharing class NewsAPIService {
      * @return NewsAPIResponse The parsed response object
      */
     private static NewsAPIResponse parseResponse(String jsonResponse) {
-        // TODO: Implement JSON parsing
+        NewsAPIResponse newsAPIResponse = new NewsAPIResponse();
+        String message;
         // - Deserialize JSON to NewsAPIResponse
-        // - Handle exceptions
-        
-        return null;
+        try {
+            NewsAPIResponse NewsResponseParsing = (NewsAPIResponse)System.JSON.deserialize(jsonResponse, NewsAPIResponse.class);
+            newsAPIResponse = NewsResponseParsing;
+        } catch (NewsAPIException e) {
+            message = e.getMessage();         // - Handle exceptions
+        }
+        return newsAPIResponse;
     }
     
     /**
