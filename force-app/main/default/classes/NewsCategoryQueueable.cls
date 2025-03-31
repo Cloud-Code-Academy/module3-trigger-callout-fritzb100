@@ -14,7 +14,12 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
      * @param pages Total pages to sync
      */
     public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages) {
-        // TODO: Initialize first page
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.pages = pages;
+        System.debug('Processing NewsCategory with Id: ' + categoryId);
+        System.debug('Category Name: ' + categoryName);
+        System.debug('Page Size: ' + pages);
     }
     
     /**
@@ -24,17 +29,24 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
      * @param pages Total pages to sync
      * @param currentPage Current page being processed
      */
-    public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) {
-        // TODO: Initialize with specific page
-    }
+    // public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) {
+    //     this.categoryId = categoryId;
+    //     this.categoryName = categoryName;
+    //     this.pages = pages;
+    //     this.currentPage = currentPage; 
+    // }
     
     /**
      * Execute method for the queueable job
      * @param context The QueueableContext
      */
     public void execute(QueueableContext context) {
-        // TODO: Implement execute method
+        System.debug('Processing NewsCategory with Id: ' + categoryId);
+        System.debug('Category Name: ' + categoryName);
+        System.debug('Page Size: ' + pages);
+
         // - Call NewsAPI for the current page
+        NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, 1);
         // - Process and save articles
         // - Update category if last page
         // - Chain to next page if more pages exist

@@ -17,7 +17,7 @@ public class NewsAPIResponse {
         public String description;
         public String url;
         public String urlToImage;
-        public String publishedAt;
+        public Datetime publishedAt;
         public String content;
         
         /**
@@ -35,9 +35,12 @@ public class NewsAPIResponse {
             Article__c articleRecord = new Article__c();
             articleRecord.Name = title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
             articleRecord.Author__c = author;
-            articleRecord.Description__c = description;
+            articleRecord.Description__c = description != null && description.length() > 32700 ? description.substring(0, 32700) : description;
+            //System.debug('content' + content);
+            articleRecord.Content__c = content != null && content.length() > 131000 ? content.substring(0, 131000) : content;
             articleRecord.Url__c = url;
-            //articleRecord.PublishedAt__c = publishedAt != null ? DateTime.valueOf(publishedAt) : null;
+            articleRecord.urlToImage__c = urlToImage != null && urlToImage.length() > 255 ? urlToImage.substring(0, 255) : urlToImage;
+            articleRecord.Published_At__c = publishedAt != null ? DateTime.valueOf(publishedAt) : null;
             return articleRecord;
         }
     }
@@ -59,9 +62,9 @@ public class NewsAPIResponse {
         List<Article__c> articleRecords = new List<Article__c>();
         for(NewsAPIResponse.Article  article : articles) {
             System.debug('article: ' + article);
-            Article__c oneArticle = article.toSObject();
-            if(oneArticle != null) {
-                articleRecords.add(oneArticle);
+            Article__c eachArticle = article.toSObject();
+            if(eachArticle != null) {
+                articleRecords.add(eachArticle);
             }
         }
         return articleRecords;
