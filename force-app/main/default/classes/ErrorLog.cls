@@ -1,6 +1,6 @@
 public with sharing class ErrorLog {
     
-    public static Error_Item__c createErrorItem(String itemName, String obj, String method, String description, Id ownerId) {
+    public static void  createErrorItem(String itemName, String obj, String method, String description, Id ownerId) {
         description = description.length() > 131072 ? description.substring(0, 131072) : description;
         Error_Item__c item = new Error_Item__c(
             Name = itemName,
@@ -9,7 +9,7 @@ public with sharing class ErrorLog {
             Error_Description__c = description,
             Error_Owner__c = ownerId
         );
-        return item;
+        insert item;
     }
     public static void debugException(Exception e) {
         System.debug(LoggingLevel.ERROR, '*** Exception occured!!***');

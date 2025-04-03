@@ -48,14 +48,17 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
      */
     public void execute(QueueableContext context) {
         // - Call NewsAPI for the current page
-        if(!maxDepthReached()) {
+        if(maxDepthReached()) { 
+            return;
+        }
+        try {
             System.debug('maxDepthHasNOT BeenReached: ' +maxDepthReached());
             NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);
-        }
-        else {
-            // call the error method
-            System.debug('Max Depth reached for sandbox/scratch org');
-            }
+        } catch (Exception e) {
+            ErrorLog.debugException(e);
+            ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'getTopHeadlinesByCategory', e.getMessage(), UserInfo.getUserId());
+            }           
+        
         
         // - Process and save articles
         // - Update category if last page

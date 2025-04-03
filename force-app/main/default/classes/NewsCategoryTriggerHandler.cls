@@ -8,7 +8,12 @@ public with sharing class NewsCategoryTriggerHandler extends TriggerHandler {
     }
     
     public override void afterInsert() {
-        runQueuableJob();
+        try {
+            runQueuableJob();
+        } catch (Exception e) {
+            
+        }
+       
     }
 
     public override void afterUpdate() {
