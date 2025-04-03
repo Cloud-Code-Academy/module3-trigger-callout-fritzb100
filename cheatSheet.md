@@ -30,3 +30,9 @@ https://jsoneditoronline.org/  // edit json
 
 `wrapper Class` - avoids the deserializedUntyped and makes it easier to work with the data
 -- you can use the wrapper class to deserialize the json string into a class object
+
+`jsonGenerator class` = another way of deserializing json
+`jsonParser class` = another way of deserializing json  
+
+Steps
+parse data

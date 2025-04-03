@@ -6,7 +6,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
     private String categoryName;
     private Integer pages;
     private Integer currentPage;
-    
+    private static final Integer MAX_Depth = 5;
     /**
      * Constructor
      * @param categoryId The Id of the News_Category__c record
@@ -29,26 +29,52 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
      * @param pages Total pages to sync
      * @param currentPage Current page being processed
      */
-    // public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) {
-    //     this.categoryId = categoryId;
-    //     this.categoryName = categoryName;
-    //     this.pages = pages;
-    //     this.currentPage = currentPage; 
-    // }
+    public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.pages = pages;
+        this.currentPage = currentPage; 
+
+        System.debug('Processing NewsCategory with Id: ' + categoryId);
+        System.debug('Category Name: ' + categoryName);
+        System.debug('Page Size: ' + pages);
+        System.debug('currentPage: ' + currentPage);
+
+    }
     
     /**
      * Execute method for the queueable job
      * @param context The QueueableContext
      */
     public void execute(QueueableContext context) {
-        System.debug('Processing NewsCategory with Id: ' + categoryId);
-        System.debug('Category Name: ' + categoryName);
-        System.debug('Page Size: ' + pages);
-
         // - Call NewsAPI for the current page
-        NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, 1);
+        if(!maxDepthReached()) {
+            System.debug('maxDepthHasNOT BeenReached: ' +maxDepthReached());
+            NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);
+        }
+        else {
+            // call the error method
+            System.debug('Max Depth reached for sandbox/scratch org');
+            }
+        
         // - Process and save articles
         // - Update category if last page
         // - Chain to next page if more pages exist
+        if(currentPage < pages) {
+            System.enqueueJob(new NewsCategoryQueueable(
+                categoryId, 
+                categoryName, 
+                pages, 
+                currentPage + 1 // Increment the page number
+            ));
+        }
+    }
+
+    public static Boolean maxDepthReached() {
+        Integer depth = AsyncInfo.getCurrentQueueableStackDepth();
+        // if(depth == MAX_Depth){
+        // }
+        // return true;
+        return depth == MAX_Depth ? true : false;
     }
 } 
