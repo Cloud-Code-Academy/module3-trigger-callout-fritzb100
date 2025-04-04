@@ -33,14 +33,15 @@ public class NewsAPIResponse {
             // - Handling field length limits
             
             Article__c articleRecord = new Article__c();
-            articleRecord.Name = title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
-            articleRecord.Author__c = author;
-            articleRecord.Description__c = description != null && description.length() > 32700 ? description.substring(0, 32700) : description;
+            articleRecord.Name = this.title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
+            articleRecord.Author__c = this.author;
+            articleRecord.Description__c = this.description != null && description.length() > 32700 ? description.substring(0, 32700) : description;
             //System.debug('content' + content);
-            articleRecord.Content__c = content != null && content.length() > 131000 ? content.substring(0, 131000) : content;
-            articleRecord.Url__c = url;
-            articleRecord.urlToImage__c = urlToImage != null && urlToImage.length() > 255 ? urlToImage.substring(0, 255) : urlToImage;
-            articleRecord.Published_At__c = publishedAt != null ? DateTime.valueOf(publishedAt) : null;
+            articleRecord.Content__c = this.content != null && content.length() > 131000 ? content.substring(0, 131000) : content;
+            articleRecord.Url__c = this.url;
+            articleRecord.urlToImage__c = this.urlToImage != null && urlToImage.length() > 255 ? urlToImage.substring(0, 255) : urlToImage;
+            articleRecord.Published_At__c = this.publishedAt != null ? DateTime.valueOf(publishedAt) : null;
+            articleRecord.Source__c = this.source != null ? this.source.name : null;
             return articleRecord;
         }
     }

@@ -72,12 +72,9 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
             ));
         }
     }
-
+ // how many pages do I have? run a calculation to get the last page am I on the last page?  do I need to requeu the job, if you're beyond the last page
     public static Boolean maxDepthReached() {
         Integer depth = AsyncInfo.getCurrentQueueableStackDepth();
-        // if(depth == MAX_Depth){
-        // }
-        // return true;
         return depth == MAX_Depth ? true : false;
     }
 } 

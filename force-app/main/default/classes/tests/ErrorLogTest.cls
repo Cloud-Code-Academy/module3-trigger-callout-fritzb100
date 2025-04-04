@@ -8,7 +8,7 @@ public with sharing class ErrorLogTest {
 
 
     @TestSetup
-    static void makeData(){
+    static void makeData() {
         ErrorLog.createErrorItem(NAME, ERROR_OBJECT, METHOD, DESCRIPTION, OWNER);
     }
 
