@@ -17,9 +17,6 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.pages = pages;
-        System.debug('Processing NewsCategory with Id: ' + categoryId);
-        System.debug('Category Name: ' + categoryName);
-        System.debug('Page Size: ' + pages);
     }
     
     /**
@@ -34,12 +31,6 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         this.categoryName = categoryName;
         this.pages = pages;
         this.currentPage = currentPage; 
-
-        System.debug('Processing NewsCategory with Id: ' + categoryId);
-        System.debug('Category Name: ' + categoryName);
-        System.debug('Page Size: ' + pages);
-        System.debug('currentPage: ' + currentPage);
-
     }
     
     /**
@@ -52,27 +43,27 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
             return;
         }
         try {
-            System.debug('maxDepthHasNOT BeenReached: ' +maxDepthReached());
             NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'getTopHeadlinesByCategory', e.getMessage(), UserInfo.getUserId());
             }           
         
-        
-        // - Process and save articles
-        // - Update category if last page
-        // - Chain to next page if more pages exist
+        // - Process and save articles Update category if last page Chain to next page if more pages exist
         if(currentPage < pages) {
+        try {
             System.enqueueJob(new NewsCategoryQueueable(
                 categoryId, 
                 categoryName, 
                 pages, 
                 currentPage + 1 // Increment the page number
             ));
+        } catch (Exception e) {
+            ErrorLog.debugException(e);
+            ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'System.enqueueJob', e.getMessage(), UserInfo.getUserId());
+            }
         }
     }
- // how many pages do I have? run a calculation to get the last page am I on the last page?  do I need to requeu the job, if you're beyond the last page
     public static Boolean maxDepthReached() {
         Integer depth = AsyncInfo.getCurrentQueueableStackDepth();
         return depth == MAX_Depth ? true : false;
