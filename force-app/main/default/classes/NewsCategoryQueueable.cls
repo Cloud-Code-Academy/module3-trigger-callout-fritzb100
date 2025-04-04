@@ -6,6 +6,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
     private String categoryName;
     private Integer pages;
     private Integer currentPage;
+    private String searchQuery;
     private static final Integer MAX_Depth = 5;
     /**
      * Constructor
@@ -26,11 +27,12 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
      * @param pages Total pages to sync
      * @param currentPage Current page being processed
      */
-    public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) {
+    public NewsCategoryQueueable(Id categoryId, String categoryName, Integer pages, Integer currentPage) { //String searchQuery
         this.categoryId = categoryId;
         this.categoryName = categoryName;
-        this.pages = pages;
-        this.currentPage = currentPage; 
+        this.pages = pages == null ? 1: pages;
+        this.currentPage = currentPage;
+        //this.searchQuery = searchQuery; 
     }
     
     /**
@@ -43,7 +45,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
             return;
         }
         try {
-            NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);
+            NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);  //searchQuery
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'getTopHeadlinesByCategory', e.getMessage(), UserInfo.getUserId());
@@ -57,6 +59,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
                 categoryName, 
                 pages, 
                 currentPage + 1 // Increment the page number
+                //searchQuery      // additional parameter
             ));
         } catch (Exception e) {
             ErrorLog.debugException(e);

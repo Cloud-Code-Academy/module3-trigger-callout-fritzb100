@@ -25,23 +25,20 @@ public class NewsAPIResponse {
          * @return Article__c The Salesforce record
          */
         public Article__c toSObject() {
-            // TODO: Implement conversion from API article to Salesforce record
             //System.debug('article'+  Article__c);
-            // Consider:
-            // - Handling date conversion
-            // - Generating a unique record name
-            // - Handling field length limits
-            
+            // Consider: Handling date conversion Generating a unique record name Handling field length limits
+            Integer uniqueNumber = (Integer)Math.random()+50 *50;
+            String uniqueString = uniqueNumber.toString();
             Article__c articleRecord = new Article__c();
-            articleRecord.Name = this.title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
+            articleRecord.Name = this.source != null ? this.source.id : uniqueString ;   //   UniqueNumber + this.source != null ? this.source.name : null;
             articleRecord.Author__c = this.author;
             articleRecord.Description__c = this.description != null && description.length() > 32700 ? description.substring(0, 32700) : description;
-            //System.debug('content' + content);
             articleRecord.Content__c = this.content != null && content.length() > 131000 ? content.substring(0, 131000) : content;
             articleRecord.Url__c = this.url;
             articleRecord.urlToImage__c = this.urlToImage != null && urlToImage.length() > 255 ? urlToImage.substring(0, 255) : urlToImage;
             articleRecord.Published_At__c = this.publishedAt != null ? DateTime.valueOf(publishedAt) : null;
             articleRecord.Source__c = this.source != null ? this.source.name : null;
+            articleRecord.Title__c = this.title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
             return articleRecord;
         }
     }
@@ -52,7 +49,13 @@ public class NewsAPIResponse {
     public class Source {
         public String id;
         public String name;
-        // TODO: Define source fields
+        
+        public Source tosObject() {
+            Source sourceString = new Source();    
+            sourceString.Id = this.id;
+            sourceString.name = this.name;
+            return sourceString;
+        }
     }
     
     /**
@@ -62,7 +65,6 @@ public class NewsAPIResponse {
     public List<Article__c> toSObjects() {
         List<Article__c> articleRecords = new List<Article__c>();
         for(NewsAPIResponse.Article  article : articles) {
-            System.debug('article: ' + article);
             Article__c eachArticle = article.toSObject();
             if(eachArticle != null) {
                 articleRecords.add(eachArticle);

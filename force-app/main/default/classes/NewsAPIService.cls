@@ -16,25 +16,27 @@ public with sharing class NewsAPIService {
      * @param page Page number for pagination
      * @return NewsAPIResponse The wrapper object containing the API response
      */
-    //@future(callout=true)
-    public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) {
+    
+    public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
         String message;
         // - Validate and set defaults for parameters Build the request URL
-        String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category;
+        String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category; //+ (searchQuery != null && searchQuery != '' ?'&q=' + EncodingUtil.urlEncode(searchQuery, 'UTF-8') : '');
 
         // - Make the callout
         HttpResponse res = makeCallout(endpoint);
+
         // - Parse and return the response
         NewsAPIResponse newsResponse = parseResponse(res.getBody());
+        
         // Convert articles to salesforce records
         List<Article__c> articlesRecords = newsResponse.toSObjects();
-        //System.debug('Converted Article_c records: ' + articlesRecords);
+
         try {
             insert articlesRecords;
             System.debug('Successfully inserted Article__c records.');
-        } catch (NewsAPIException e) {
-            message = e.getMessage();
-            System.debug('Successfully inserted Article__c records.');
+        } catch (Exception e) {
+            ErrorLog.debugException(e);
+            ErrorLog.createErrorItem('Exception in NewsAPIResponse', 'Article__c', 'articlesRecords', e.getMessage(), UserInfo.getUserId());
         }
         return newsResponse;
     }
