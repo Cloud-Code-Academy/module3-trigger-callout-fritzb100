@@ -17,28 +17,27 @@ public with sharing class NewsAPIService {
      * @return NewsAPIResponse The wrapper object containing the API response
      */
     
-    public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
+    public static void getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
         String message;
         // - Validate and set defaults for parameters Build the request URL
         String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category; //+ (searchQuery != null && searchQuery != '' ?'&q=' + EncodingUtil.urlEncode(searchQuery, 'UTF-8') : '');
 
         // - Make the callout
-        HttpResponse res = makeCallout(endpoint);
-
-        // - Parse and return the response
-        NewsAPIResponse newsResponse = parseResponse(res.getBody());
-        
-        // Convert articles to salesforce records
-        List<Article__c> articlesRecords = newsResponse.toSObjects();
-
         try {
+            HttpResponse res = makeCallout(endpoint);
+            // - Parse and return the response
+            NewsAPIResponse newsResponse = parseResponse(res.getBody());
+            // Convert articles to salesforce records
+            List<Article__c> articlesRecords = newsResponse.toSObjects();
             insert articlesRecords;
             System.debug('Successfully inserted Article__c records.');
+            //return newsResponse;
         } catch (Exception e) {
             ErrorLog.debugException(e);
-            ErrorLog.createErrorItem('Exception in NewsAPIResponse', 'Article__c', 'articlesRecords', e.getMessage(), UserInfo.getUserId());
+            ErrorLog.createErrorItem('Exception in NewsAPIResponse', 'Article__c', 'makeCallout', e.getMessage(), UserInfo.getUserId());
         }
-        return newsResponse;
+
+        
     }
     
     /**
@@ -50,22 +49,30 @@ public with sharing class NewsAPIService {
     public static HttpResponse makeCallout(String endpoint) {
         HttpResponse returnedResponse = new HttpResponse();
         String message;
-        // - Create and configure HTTP request
-        Http http = new Http();
         HttpRequest request = new HttpRequest();
+        Http http = new Http();
+       
+
+        if(Test.isRunningTest()) {
+            System.debug('running in test');
+            Test.setMock(HttpCalloutMock.class, NewsAPIMock.createSuccessMock());
+        } else {
+            System.debug('running in prod');
+        }
         request.setMethod('GET');
         request.setEndpoint(endpoint);
-            // - Make the callout - Handle exceptions
-        try {
+        // - Create and configure HTTP request
+        
+        
+        System.debug('request: ' + request);
+
             HttpResponse response = http.send(request);
             if(response.getStatusCode() >= 200 || response.getStatusCode() <300) {
                 returnedResponse = response;
             }
-        } catch (NewsAPIException e) {
-            message = e.getMessage();
+            return returnedResponse;
         }
-        return returnedResponse;
-    }
+    
     
     /**
      * Helper method to parse the JSON response

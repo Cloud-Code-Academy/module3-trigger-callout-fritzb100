@@ -20,6 +20,7 @@ public class NewsAPIMock implements HttpCalloutMock {
     }
     
     public HttpResponse respond(HttpRequest req) {
+        System.debug('Mock callout triggered for URL: ' + req.getEndpoint());
         HttpResponse res = new HttpResponse();
         res.setStatusCode(statusCode);
         res.setBody(body);

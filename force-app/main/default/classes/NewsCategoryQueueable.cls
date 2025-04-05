@@ -6,7 +6,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
     private String categoryName;
     private Integer pages;
     private Integer currentPage;
-    private String searchQuery;
+    //private String searchQuery;
     private static final Integer MAX_Depth = 5;
     /**
      * Constructor
@@ -35,6 +35,9 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         //this.searchQuery = searchQuery; 
     }
     
+
+
+
     /**
      * Execute method for the queueable job
      * @param context The QueueableContext
@@ -44,6 +47,8 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         if(maxDepthReached()) { 
             return;
         }
+        // News_Category__c newNewsCategory = [SELECT Id FROM News_Category__c WHERE Id =: categoryId];
+        // System.debug('newNewsCategory: ' + newNewsCategory);
         try {
             NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);  //searchQuery
         } catch (Exception e) {
@@ -53,6 +58,8 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         
         // - Process and save articles Update category if last page Chain to next page if more pages exist
         if(currentPage < pages) {
+            System.debug('currentPage:' + currentPage);
+            System.debug('pages:' + pages);
         try {
             System.enqueueJob(new NewsCategoryQueueable(
                 categoryId, 
@@ -61,6 +68,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
                 currentPage + 1 // Increment the page number
                 //searchQuery      // additional parameter
             ));
+            System.debug('categoryId:::: ' + categoryId);
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'System.enqueueJob', e.getMessage(), UserInfo.getUserId());
