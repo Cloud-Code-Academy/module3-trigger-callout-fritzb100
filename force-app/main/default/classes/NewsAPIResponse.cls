@@ -24,7 +24,7 @@ public class NewsAPIResponse {
          * Converts the API article to a Salesforce Article__c record
          * @return Article__c The Salesforce record
          */
-        public Article__c toSObject() {
+        public Article__c toSObject(String categoryName, Id CategoryId) {
             //System.debug('article'+  Article__c);
             // Consider: Handling date conversion Generating a unique record name Handling field length limits
             Integer uniqueNumber = (Integer)Math.random()+50 *50;
@@ -39,6 +39,8 @@ public class NewsAPIResponse {
             articleRecord.Published_At__c = this.publishedAt != null ? DateTime.valueOf(publishedAt) : null;
             articleRecord.Source__c = this.source != null ? this.source.name : null;
             articleRecord.Title__c = this.title != null ? title.substring(0, Math.min(80, title.length())) : 'Untitled';
+            articleRecord.News_Category__c = CategoryId;
+            articleRecord.Category__c = categoryName;
             return articleRecord;
         }
     }
@@ -62,10 +64,10 @@ public class NewsAPIResponse {
      * Helper method to convert all articles in this response to Salesforce records
      * @return List<Article__c> List of Salesforce records
      */
-    public List<Article__c> toSObjects() {
+    public  List<Article__c> toSObjects(String categoryName, Id CategoryId) {
         List<Article__c> articleRecords = new List<Article__c>();
         for(NewsAPIResponse.Article  article : articles) {
-            Article__c eachArticle = article.toSObject();
+            Article__c eachArticle = article.toSObject(categoryName, CategoryId);
             if(eachArticle != null) {
                 articleRecords.add(eachArticle);
             }

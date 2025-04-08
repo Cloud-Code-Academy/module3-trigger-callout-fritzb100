@@ -50,7 +50,7 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         // News_Category__c newNewsCategory = [SELECT Id FROM News_Category__c WHERE Id =: categoryId];
         // System.debug('newNewsCategory: ' + newNewsCategory);
         try {
-            NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);  //searchQuery
+            NewsAPIResponse response = NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);  //searchQuery
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsCategoryQueueable', 'News_Category__c', 'getTopHeadlinesByCategory', e.getMessage(), UserInfo.getUserId());

@@ -17,8 +17,10 @@ public with sharing class NewsAPIService {
      * @return NewsAPIResponse The wrapper object containing the API response
      */
     
-    public static void getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
-        String message;
+    public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
+        NewsAPIResponse newsResponse = new NewsAPIResponse();
+        //List<News_Category__c> newsCategoriesToInsert = new List<News_Category__c> ();
+        List<Article__c> articlesToInsert = new List<Article__c> ();
         // - Validate and set defaults for parameters Build the request URL
         String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category; //+ (searchQuery != null && searchQuery != '' ?'&q=' + EncodingUtil.urlEncode(searchQuery, 'UTF-8') : '');
 
@@ -26,18 +28,19 @@ public with sharing class NewsAPIService {
         try {
             HttpResponse res = makeCallout(endpoint);
             // - Parse and return the response
-            NewsAPIResponse newsResponse = parseResponse(res.getBody());
+            newsResponse = parseResponse(res.getBody());
             // Convert articles to salesforce records
-            List<Article__c> articlesRecords = newsResponse.toSObjects();
-            insert articlesRecords;
+            articlesToInsert = newsResponse.toSObjects( category, category);
+
+            //insert articlesToInsert;
             System.debug('Successfully inserted Article__c records.');
-            //return newsResponse;
+            return newsResponse;
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsAPIResponse', 'Article__c', 'makeCallout', e.getMessage(), UserInfo.getUserId());
         }
 
-        
+        return null;
     }
     
     /**
@@ -50,8 +53,7 @@ public with sharing class NewsAPIService {
         HttpResponse returnedResponse = new HttpResponse();
         String message;
         HttpRequest request = new HttpRequest();
-        Http http = new Http();
-       
+        Http http = new Http();       
 
         if(Test.isRunningTest()) {
             System.debug('running in test');
