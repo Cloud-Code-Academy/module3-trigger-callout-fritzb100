@@ -30,7 +30,7 @@ public with sharing class NewsAPIService {
             // - Parse and return the response
             newsResponse = parseResponse(res.getBody());
             // Convert articles to salesforce records
-            articlesToInsert = newsResponse.toSObjects( category, category);
+            //articlesToInsert = newsResponse.toSObjects( category, null);
 
             //insert articlesToInsert;
             System.debug('Successfully inserted Article__c records.');

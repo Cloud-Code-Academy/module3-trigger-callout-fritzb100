@@ -9,9 +9,17 @@ public with sharing class NewsCategoryTriggerHandler {
      * @param newRecords List of newly inserted News_Category__c records
      */
     public static void handleInsert(List<News_Category__c> newRecords) {
+        Map<String, Id> categoryNamesById = new  Map<String, Id>();
+        System.debug('newRecords: ' + newRecords);
         // TODO: Implement insert handler
         // - Filter categories that need to be synced
+        for(News_Category__c newNewsCategory : newRecords) {
+            if(newNewsCategory.Sync__c == true) {
+                categoryNamesById.put(newNewsCategory.Name, newNewsCategory.Id);
+            }
+        }
         // - Call future method for callouts
+        syncCategoriesWithFuture(categoryNamesById);
     }
     
     /**
@@ -32,10 +40,18 @@ public with sharing class NewsCategoryTriggerHandler {
      * @param categoryNames List of category names to sync
      */
     @future(callout=true)
-    public static void syncCategoriesWithFuture(List<String> categoryNames) {
+    public static void syncCategoriesWithFuture(Map<String, Id> categoryNamesMap) {
+        System.debug('categoryNamesMap: ' + categoryNamesMap);
+        NewsAPIResponse newsResponse = new NewsAPIResponse();
+        List<Article__c> articlesToInsert = new List<Article__c> ();
         // TODO: Implement future method
         // - Get categories by name
         // - Make callouts to NewsAPI for each category
+        for( String newsCategoryName : categoryNamesMap.keySet()) {
+            newsResponse = NewsAPIService.getTopHeadlinesByCategory(newsCategoryName, 1, 1);
+            //articlesToInsert = newsResponse.toSObjects(newsCategoryName, categoryNamesMap.get(newsCategoryName));
+        }
+        System.debug('articlesToInsert: ' + articlesToInsert);
         // - Insert retrieved articles
         // - Update categories with last synced date
     }
