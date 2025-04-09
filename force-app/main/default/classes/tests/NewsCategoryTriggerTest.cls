@@ -43,7 +43,7 @@ private class NewsCategoryTriggerTest {
             FROM News_Category__c 
             WHERE Id = :newCategory.Id
         ];
-        System.debug('updatedCategory: ' + updatedCategory);
+        System.debug('updatedCategory last sync: ' + updatedCategory.Last_Synced__c);
         Assert.isNotNull(updatedCategory.Last_Synced__c, 'Last_Synced__c should be set');
         Assert.areEqual(false, updatedCategory.Sync__c, 'Sync__c should be set to false');
         
@@ -94,7 +94,7 @@ private class NewsCategoryTriggerTest {
         ];
         
         Test.startTest();
-        
+        System.debug('category: '+ category);
         // Update Sync__c to true
         category.Sync__c = true;
         update category;
@@ -107,6 +107,8 @@ private class NewsCategoryTriggerTest {
             FROM News_Category__c 
             WHERE Id = :category.Id
         ];
+        System.debug('updatedCategory: '+ updatedCategory);
+
         Assert.isNotNull(updatedCategory.Last_Synced__c, 'Last_Synced__c should be set');
         Assert.areEqual(false, updatedCategory.Sync__c, 'Sync__c should be set to false');
         

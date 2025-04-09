@@ -30,7 +30,7 @@ public with sharing class NewsAPIService {
             // - Parse and return the response
             newsResponse = parseResponse(res.getBody());
             // Convert articles to salesforce records
-            //articlesToInsert = newsResponse.toSObjects( category, null);
+            //articlesToInsert = newsResponse.toSObjects( null, category);
 
             //insert articlesToInsert;
             System.debug('Successfully inserted Article__c records.');
@@ -53,7 +53,8 @@ public with sharing class NewsAPIService {
         HttpResponse returnedResponse = new HttpResponse();
         String message;
         HttpRequest request = new HttpRequest();
-        Http http = new Http();       
+        Http http = new Http();
+       
 
         if(Test.isRunningTest()) {
             System.debug('running in test');
@@ -81,7 +82,7 @@ public with sharing class NewsAPIService {
      * @param jsonResponse The JSON response string
      * @return NewsAPIResponse The parsed response object
      */
-    private static NewsAPIResponse parseResponse(String jsonResponse) {
+    public static NewsAPIResponse parseResponse(String jsonResponse) {
         NewsAPIResponse newsAPIResponse = new NewsAPIResponse();
         String message;
         // - Deserialize JSON to NewsAPIResponse
