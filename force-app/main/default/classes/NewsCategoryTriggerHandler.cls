@@ -11,16 +11,14 @@ public with sharing class NewsCategoryTriggerHandler {
      */
     public static void handleInsert(List<News_Category__c> newRecords) {
         List<String> categoriesToSync = new  List<String>();
-        System.debug('newRecords: ' + newRecords);
         // TODO: Implement insert handler
         // - Filter categories that need to be synced
         for(News_Category__c newNewsCategory : newRecords) {
             if(newNewsCategory.Sync__c == true && String.isNotBlank(newNewsCategory.Name)) {
-                System.debug('newNewsCategory.Sync__c:::: '+ newNewsCategory.Sync__c);
                 categoriesToSync.add(newNewsCategory.Name);
             }
         }
-        System.debug('categoriesToSync:::: '+ categoriesToSync);
+
         // - Call future method for callouts
         if(!categoriesToSync.isEmpty()) {
             syncCategoriesWithFuture(categoriesToSync);
@@ -44,7 +42,7 @@ public with sharing class NewsCategoryTriggerHandler {
                 categoriesToSync.add(category);
             }
         }
-        System.debug('categoriesToSync: ' + categoriesToSync);
+
         if(!categoriesToSync.isEmpty()) {
             syncCategoriesWithQueueable(categoriesToSync);
         }
@@ -62,7 +60,6 @@ public with sharing class NewsCategoryTriggerHandler {
         // - Insert retrieved articles
         // - Update categories with last synced date
 
-        System.debug('categoryNames: ' + categoryNames);
         NewsAPIResponse newsResponse = new NewsAPIResponse();
         List<Article__c> articlesToInsert = new List<Article__c> ();
         List<News_Category__c> categoriesToUpdate = new List<News_Category__c>();
@@ -72,29 +69,22 @@ public with sharing class NewsCategoryTriggerHandler {
         
         for( News_Category__c category : categories) {
             if(Test.isRunningTest()) {
-                System.debug('Test is runing test!!!');
                 newsResponse = NewsAPIService.ParseResponse(NewsAPIMock.createSuccessMock().respond(new HttpRequest()).getBody());
-                System.debug('newsResponse: ' + newsResponse);
             }
             else {
                 newsResponse = NewsAPIService.getTopHeadlinesByCategory(category.Id, 3, 1);
             }
             List<Article__c> articles = newsResponse.toSObjects(category.Id, category.Name);
-            system.debug(articles);
             articlesToInsert.addAll(articles);
 
             News_Category__c categoryToUpdate = new News_Category__c(Id = category.Id, Sync__c = false, Last_Synced__c = System.Now());
-            System.debug('articlesToInsert: ' + articlesToInsert);
-            System.debug('categoryToUpdate: ' + categoryToUpdate);
             categoriesToUpdate.add(categoryToUpdate);
-           
-            
             
         }
         if(!articlesToInsert.isEmpty()) {
             insert articlesToInsert;
         }
-        System.debug('categoriesToUpdate: ' + categoriesToUpdate);
+
         update categoriesToUpdate;
     }
 
@@ -108,10 +98,7 @@ public with sharing class NewsCategoryTriggerHandler {
         // TODO: Implement queueable job enqueuing
         // - Determine pages to sync for each category
         // - Create and enqueue NewsCategoryQueueable job for each category
-        // if(IS_JOB_ENQUEUED) {
-        //     IS_JOB_ENQUEUED = true;
 
-            System.debug('job is enqueued');
             News_Category__c category = categoriesToSync[0];
             System.enqueueJob(new NewsCategoryQueueable(category.Id, category.Name, 1));
         //}

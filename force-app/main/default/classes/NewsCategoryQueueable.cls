@@ -37,9 +37,6 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         //this.searchQuery = searchQuery; 
     }
     
-
-
-
     /**
      * Execute method for the queueable job
      * @param context The QueueableContext
@@ -50,7 +47,6 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
             return;
         }
         News_Category__c newNewsCategory = [SELECT Id, Last_Synced__c FROM News_Category__c WHERE Id =: categoryId LIMIT 1];
-        System.debug('newNewsCategory: ' + newNewsCategory);
         try {
             NewsAPIResponse response = NewsAPIService.getTopHeadlinesByCategory(categoryName, pages, currentPage);  //searchQuery
             List<Article__c> articlesToInsert = response.toSObjects(categoryId, categoryName);
@@ -62,16 +58,13 @@ public class NewsCategoryQueueable implements Queueable, Database.AllowsCallouts
         
         // - Process and save articles Update category if last page Chain to next page if more pages exist
         if(currentPage < this.pages) {
-            System.debug('currentPage:' + currentPage);
-            System.debug('pages:' + pages);
             System.enqueueJob(new NewsCategoryQueueable(categoryId, categoryName, pages, currentPage + 1)); // Increment the page number  //searchQuery      // additional parameter
         }else {
-            System.debug('newNewsCategory.Last_Synced__c:' + newNewsCategory.Last_Synced__c);
             newNewsCategory.Last_Synced__c = System.now();
             newNewsCategory.Sync__c = false;
             update newNewsCategory;
         }
-   
+        
         List<News_Category__c> otherCategories = [SELECT Id, Name, Sync__c FROM News_Category__c WHERE Sync__c = true LIMIT 1];
 
         if(!otherCategories.isEmpty() && !maxDepthReached()) {

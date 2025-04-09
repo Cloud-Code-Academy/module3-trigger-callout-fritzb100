@@ -29,17 +29,12 @@ public with sharing class NewsAPIService {
             HttpResponse res = makeCallout(endpoint);
             // - Parse and return the response
             newsResponse = parseResponse(res.getBody());
-            // Convert articles to salesforce records
-            //articlesToInsert = newsResponse.toSObjects( null, category);
-
             //insert articlesToInsert;
-            System.debug('Successfully inserted Article__c records.');
             return newsResponse;
         } catch (Exception e) {
             ErrorLog.debugException(e);
             ErrorLog.createErrorItem('Exception in NewsAPIResponse', 'Article__c', 'makeCallout', e.getMessage(), UserInfo.getUserId());
         }
-
         return null;
     }
     
@@ -51,29 +46,20 @@ public with sharing class NewsAPIService {
     //@future(callout=true)
     public static HttpResponse makeCallout(String endpoint) {
         HttpResponse returnedResponse = new HttpResponse();
-        String message;
         HttpRequest request = new HttpRequest();
         Http http = new Http();
-       
 
         if(Test.isRunningTest()) {
-            System.debug('running in test');
             Test.setMock(HttpCalloutMock.class, NewsAPIMock.createSuccessMock());
-        } else {
-            System.debug('running in prod');
-        }
+        } 
         request.setMethod('GET');
         request.setEndpoint(endpoint);
-        // - Create and configure HTTP request
-        
-        
-        System.debug('request: ' + request);
 
-            HttpResponse response = http.send(request);
-            if(response.getStatusCode() >= 200 || response.getStatusCode() <300) {
-                returnedResponse = response;
-            }
-            return returnedResponse;
+        HttpResponse response = http.send(request);
+        if(response.getStatusCode() >= 200 || response.getStatusCode() <300) {
+            returnedResponse = response;
+        }
+        return returnedResponse;
         }
     
     
