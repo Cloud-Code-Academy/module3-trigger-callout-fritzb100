@@ -16,6 +16,7 @@ private class NewsCategoryTriggerTest {
                 Pages__c = 1
             )
         };
+        System.debug('categories:' + categories);
         insert categories;
     }
     
@@ -42,6 +43,7 @@ private class NewsCategoryTriggerTest {
             FROM News_Category__c 
             WHERE Id = :newCategory.Id
         ];
+        System.debug('updatedCategory last sync: ' + updatedCategory.Last_Synced__c);
         Assert.isNotNull(updatedCategory.Last_Synced__c, 'Last_Synced__c should be set');
         Assert.areEqual(false, updatedCategory.Sync__c, 'Sync__c should be set to false');
         
@@ -51,6 +53,7 @@ private class NewsCategoryTriggerTest {
             FROM Article__c 
             WHERE News_Category__c = :newCategory.Id
         ];
+        System.debug('articles: ' + articles);
         Assert.areEqual(2, articles.size(), 'Should have created 2 articles');
         Assert.areEqual('Science', articles[0].Category__c, 'Article category should match');
     }
@@ -91,7 +94,7 @@ private class NewsCategoryTriggerTest {
         ];
         
         Test.startTest();
-        
+        System.debug('category: '+ category);
         // Update Sync__c to true
         category.Sync__c = true;
         update category;
@@ -104,6 +107,8 @@ private class NewsCategoryTriggerTest {
             FROM News_Category__c 
             WHERE Id = :category.Id
         ];
+        System.debug('updatedCategory: '+ updatedCategory);
+
         Assert.isNotNull(updatedCategory.Last_Synced__c, 'Last_Synced__c should be set');
         Assert.areEqual(false, updatedCategory.Sync__c, 'Sync__c should be set to false');
         
