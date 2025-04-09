@@ -3,7 +3,6 @@
  */
 public with sharing class NewsCategoryTriggerHandler {
         
-    public static Boolean IS_JOB_ENQUEUED = false;
     /**
      * Handles after insert events for News_Category__c
      * Uses Future method for callouts when Sync__c is true

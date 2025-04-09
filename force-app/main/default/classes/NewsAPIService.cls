@@ -19,8 +19,6 @@ public with sharing class NewsAPIService {
     
     public static NewsAPIResponse getTopHeadlinesByCategory(String category, Integer pageSize, Integer page) { // String searchQuery
         NewsAPIResponse newsResponse = new NewsAPIResponse();
-        //List<News_Category__c> newsCategoriesToInsert = new List<News_Category__c> ();
-        List<Article__c> articlesToInsert = new List<Article__c> ();
         // - Validate and set defaults for parameters Build the request URL
         String endpoint = API_NAMED_CREDENTIAL + API_ENDPOINT +'?page='+page+'&pageSize='+pageSize+ '&category='+ category; //+ (searchQuery != null && searchQuery != '' ?'&q=' + EncodingUtil.urlEncode(searchQuery, 'UTF-8') : '');
 
